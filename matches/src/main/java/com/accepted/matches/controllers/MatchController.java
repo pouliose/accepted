@@ -13,8 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @AllArgsConstructor
 @RestController
 @RequestMapping("api/v1")
@@ -33,7 +31,7 @@ public class MatchController {
         return new ResponseEntity<>(matchMapper.mapTo(matchResult), HttpStatus.OK);
     }
 
-    @GetMapping(path="/matches")
+    @GetMapping(path = "/matches")
     public ResponseEntity<Page<MatchDto>> getAllMatches(
             @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC)
             Pageable pageable) {
@@ -42,7 +40,7 @@ public class MatchController {
         return new ResponseEntity<>(matchResponseDtos, HttpStatus.OK);
     }
 
-    @PostMapping(path="/matches")
+    @PostMapping(path = "/matches")
     public ResponseEntity<MatchDto> createMatch(@RequestBody MatchDto matchRequestDto) {
         Match match = matchMapper.mapFrom(matchRequestDto);
         Match matchSaved = matchService.createMatch(match);
@@ -50,7 +48,7 @@ public class MatchController {
         return new ResponseEntity<>(matchDtoSaved, HttpStatus.CREATED);
     }
 
-    @PutMapping(path="/matches/{id}")
+    @PutMapping(path = "/matches/{id}")
     public ResponseEntity<MatchDto> updateMatch(
             @PathVariable("id") Long id,
             @RequestBody MatchDto matchRequestDto) {
@@ -64,7 +62,7 @@ public class MatchController {
         }
     }
 
-    @DeleteMapping(path="/matches/{id}")
+    @DeleteMapping(path = "/matches/{id}")
     public ResponseEntity<Void> deleteMatch(@PathVariable("id") Long id) {
         try {
             matchService.deleteMatch(id);

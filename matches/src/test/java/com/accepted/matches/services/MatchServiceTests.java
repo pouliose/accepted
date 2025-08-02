@@ -66,7 +66,7 @@ public class MatchServiceTests {
 
         Page<Match> result = matchService.findAll(pageable);
 
-        assertTrue(result.getSize() == 1);
+        assertEquals(1, result.getSize());
         assertEquals(matchA, result.stream().findFirst().get());
         Mockito.verify(matchRepository, Mockito.times(1)).findAll(pageable);
     }
@@ -105,9 +105,7 @@ public class MatchServiceTests {
 
         Mockito.when(matchRepository.existsById(1L)).thenReturn(false);
 
-        assertThrows(BadRequestException.class, () -> {
-            matchService.updateMatch(1L, matchA);
-        });
+        assertThrows(BadRequestException.class, () -> matchService.updateMatch(1L, matchA));
 
         Mockito.verify(matchRepository, Mockito.times(1)).existsById(1L);
     }
