@@ -5,18 +5,19 @@ import com.accepted.matches.model.dto.MatchDto;
 import com.accepted.matches.model.entities.Match;
 import com.accepted.matches.services.MatchService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("api/v1/matches")
+@RequestMapping("api/v1")
 public class MatchController {
 
     private final MatchService matchService;
@@ -25,14 +26,52 @@ public class MatchController {
     //private final ModelMapper modelMapper;
 
 
-    @GetMapping(path = "/{id}")
+    @GetMapping(path = "/matches/{id}")
     public ResponseEntity<MatchDto> getMatchById(@PathVariable("id") Long id) {
-        Optional<Match> matchResult = matchService.findById(id);
+        Match matchResult = matchService.findById(id);
 
-        return matchResult.map(match -> {
-                    MatchDto matchDto = matchMapper.mapTo(match);
-                    return new ResponseEntity<>(matchDto, HttpStatus.OK);
-                })
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return new ResponseEntity<>(matchMapper.mapTo(matchResult), HttpStatus.OK);
     }
+
+    @GetMapping(path="/matches")
+    public ResponseEntity<Page<MatchDto>> getAllMatches(
+            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC)
+            Pageable pageable) {
+        Page<Match> matches = matchService.findAll(pageable);
+        Page<MatchDto> matchResponseDtos = matches.map(matchMapper::mapTo);
+        return new ResponseEntity<>(matchResponseDtos, HttpStatus.OK);
+    }
+
+    @PostMapping(path="/matches")
+    public ResponseEntity<MatchDto> createMatch(@RequestBody MatchDto matchRequestDto) {
+        Match match = matchMapper.mapFrom(matchRequestDto);
+        Match matchSaved = matchService.createMatch(match);
+        MatchDto matchDtoSaved = matchMapper.mapTo(matchSaved);
+        return new ResponseEntity<>(matchDtoSaved, HttpStatus.CREATED);
+    }
+
+    @PutMapping(path="/matches/{id}")
+    public ResponseEntity<MatchDto> updateMatch(
+            @PathVariable("id") Long id,
+            @RequestBody MatchDto matchRequestDto) {
+        try {
+            Match match = matchMapper.mapFrom(matchRequestDto);
+            Match matchUpdated = matchService.updateMatch(id, match);
+            MatchDto matchDtoUpdated = matchMapper.mapTo(matchUpdated);
+            return new ResponseEntity<>(matchDtoUpdated, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping(path="/matches/{id}")
+    public ResponseEntity<Void> deleteMatch(@PathVariable("id") Long id) {
+        try {
+            matchService.deleteMatch(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }
