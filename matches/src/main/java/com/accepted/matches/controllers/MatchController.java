@@ -5,6 +5,7 @@ import com.accepted.matches.model.dto.MatchDto;
 import com.accepted.matches.model.entities.Match;
 import com.accepted.matches.services.MatchService;
 import lombok.AllArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -51,25 +52,18 @@ public class MatchController {
     @PutMapping(path = "/matches/{id}")
     public ResponseEntity<MatchDto> updateMatch(
             @PathVariable("id") Long id,
-            @RequestBody MatchDto matchRequestDto) {
-        try {
-            Match match = matchMapper.mapFrom(matchRequestDto);
-            Match matchUpdated = matchService.updateMatch(id, match);
-            MatchDto matchDtoUpdated = matchMapper.mapTo(matchUpdated);
-            return new ResponseEntity<>(matchDtoUpdated, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+            @RequestBody MatchDto matchRequestDto) throws BadRequestException {
+
+        Match match = matchMapper.mapFrom(matchRequestDto);
+        Match matchUpdated = matchService.updateMatch(id, match);
+        MatchDto matchDtoUpdated = matchMapper.mapTo(matchUpdated);
+        return new ResponseEntity<>(matchDtoUpdated, HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/matches/{id}")
-    public ResponseEntity<Void> deleteMatch(@PathVariable("id") Long id) {
-        try {
-            matchService.deleteMatch(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<Void> deleteMatch(@PathVariable("id") Long id) throws BadRequestException {
+        matchService.deleteMatch(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 }

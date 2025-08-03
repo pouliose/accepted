@@ -2,6 +2,8 @@ package com.accepted.matches.advice;
 
 
 import com.accepted.matches.exceptions.MatchNotFoundException;
+import com.accepted.matches.exceptions.MatchOddsNotFoundException;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -35,6 +37,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
+    @ExceptionHandler({MatchOddsNotFoundException.class})
+    public ResponseEntity<String> handleMatchOddsNotFoundException(RuntimeException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex,
                                                                          WebRequest request) {
@@ -44,6 +51,17 @@ public class GlobalExceptionHandler {
         body.put("status", HttpStatus.METHOD_NOT_ALLOWED.value());
 
         return new ResponseEntity<>(body, HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    protected ResponseEntity<Object> handleBadRequestException(BadRequestException ex,
+                                                                         WebRequest request) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("error", "Bad request");
+        body.put("message", ex.getMessage());
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
