@@ -51,7 +51,25 @@ public class CreateTestData {
                 .id(1L)
                 .specifier(Specifier.ONE)
                 .odd(new BigDecimal(1.10))
+                .match(match.getId())
+                .build();
+    }
+
+    public static MatchOdds createMatchOddsB(Match match) {
+        return MatchOdds.builder()
+                .id(2L)
+                .specifier(Specifier.X)
+                .odd(new BigDecimal(1.85))
                 .match(match)
+                .build();
+    }
+
+    public static MatchOddsDto createMatchOddsBDto(MatchDto match) {
+        return MatchOddsDto.builder()
+                .id(2L)
+                .specifier(Specifier.X)
+                .odd(new BigDecimal(1.85))
+                .match(match.getId())
                 .build();
     }
 }

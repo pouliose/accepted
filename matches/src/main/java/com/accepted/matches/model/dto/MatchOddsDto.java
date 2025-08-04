@@ -10,9 +10,10 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Getter
 @Setter
+@EqualsAndHashCode
 public class MatchOddsDto {
     private Long id;
     private Specifier specifier;
     private BigDecimal odd;
-    private MatchDto match;
+    private Long match;
 }

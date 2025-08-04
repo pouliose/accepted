@@ -103,11 +103,11 @@ public class MatchServiceTests {
     public void testUpdateMatchThrowsBadRequestExceptionWhenMatchDoesNotExist() {
         Match matchA = CreateTestData.createMatchA();
 
-        Mockito.when(matchRepository.existsById(1L)).thenReturn(false);
+        Mockito.when(matchRepository.existsById(matchA.getId())).thenReturn(false);
 
-        assertThrows(BadRequestException.class, () -> matchService.updateMatch(1L, matchA));
+        assertThrows(BadRequestException.class, () -> matchService.updateMatch(matchA.getId(), matchA));
 
-        Mockito.verify(matchRepository, Mockito.times(1)).existsById(1L);
+        Mockito.verify(matchRepository, Mockito.times(1)).existsById(matchA.getId());
     }
 
     @Test
@@ -122,10 +122,11 @@ public class MatchServiceTests {
 
     @Test
     public void testDeleteMatchThrowsBadRequestExceptionWhenMatchDoesNotExist() {
-        Mockito.when(matchRepository.existsById(1L)).thenReturn(false);
+        long matchId = 1L;
+        Mockito.when(matchRepository.existsById(matchId)).thenReturn(false);
 
-        assertThrows(BadRequestException.class, () -> matchService.deleteMatch(1L));
+        assertThrows(BadRequestException.class, () -> matchService.deleteMatch(matchId));
 
-        Mockito.verify(matchRepository, Mockito.times(1)).existsById(1L);
+        Mockito.verify(matchRepository, Mockito.times(1)).existsById(matchId);
     }
 }

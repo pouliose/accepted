@@ -50,4 +50,11 @@ public class MatchService {
         }
         matchRepository.deleteById(id);
     }
+
+    public boolean existsMatchById(Long matchId) {
+        if (matchId == null) {
+            throw new IllegalArgumentException("Match ID cannot be null.");
+        }
+        return matchRepository.existsById(matchId);
+    }
 }

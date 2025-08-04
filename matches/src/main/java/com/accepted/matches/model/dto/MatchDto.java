@@ -11,6 +11,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @Getter
 @Setter
+@EqualsAndHashCode
 public class MatchDto {
     private Long id;
     private String description;
@@ -19,4 +20,5 @@ public class MatchDto {
     private String teamA;
     private String teamB;
     private Sport sport;
+   /* private List<Long> matchOddsIds;*/
 }
