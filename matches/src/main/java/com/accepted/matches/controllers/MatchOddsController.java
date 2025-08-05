@@ -21,8 +21,6 @@ public class MatchOddsController {
 
     private final MatchOddsService matchOddsService;
 
-    private final Mapper<MatchOdds, MatchOddsDto> matchOddsMapper;
-
     @GetMapping(path = "/matchesodds/{id}")
     public ResponseEntity<MatchOddsDto> getMatchOddsById(@PathVariable("id") Long id) {
         MatchOddsDto matchOddsDto = matchOddsService.findByMatchOddsId(id);
@@ -50,7 +48,7 @@ public class MatchOddsController {
     }
 
     @PostMapping(path = "/matches/{matchId}/odds")
-    public ResponseEntity<MatchOddsDto> createMatch(@PathVariable Long matchId, @RequestBody MatchOddsDto matchOddsDto) throws BadRequestException {
+    public ResponseEntity<MatchOddsDto> createMatchOdds(@PathVariable Long matchId, @RequestBody MatchOddsDto matchOddsDto) throws BadRequestException {
         MatchOddsDto matchOddsDtoSaved = matchOddsService.createMatchOdds(matchId, matchOddsDto);
         return new ResponseEntity<>(matchOddsDtoSaved, HttpStatus.CREATED);
     }
@@ -65,9 +63,9 @@ public class MatchOddsController {
     }
 
     @DeleteMapping(path = "/matchesodds/{id}")
-    public ResponseEntity<Void> deleteMatch(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> deleteMatchOdds(@PathVariable("id") Long id) {
         try {
-            matchOddsService.deleteMatch(id);
+            matchOddsService.deleteMatchOdds(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

@@ -36,17 +36,17 @@ public class MatchService {
         return matchRepository.save(match);
     }
 
-    public Match updateMatch(Long id, Match match) throws BadRequestException {
+    public Match updateMatch(Long id, Match match) {
         if (!matchRepository.existsById(id)) {
-            throw new BadRequestException("Match with id " + id + " does not exist.");
+            throw new MatchNotFoundException("Match with id " + id + " does not exist.");
         }
         match.setId(id);
         return matchRepository.save(match);
     }
 
-    public void deleteMatch(Long id) throws BadRequestException {
+    public void deleteMatch(Long id) {
         if (!matchRepository.existsById(id)) {
-            throw new BadRequestException("Match with id " + id + " does not exist.");
+            throw new MatchNotFoundException("Match with id " + id + " does not exist.");
         }
         matchRepository.deleteById(id);
     }

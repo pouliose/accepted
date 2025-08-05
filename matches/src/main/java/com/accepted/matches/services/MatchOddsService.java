@@ -40,9 +40,7 @@ public class MatchOddsService {
     public Page<MatchOddsDto> findAll(Pageable pageable) {
         Page<MatchOdds> matchOdds = matchOddsRepository.findAll(pageable);
 
-        Page<MatchOddsDto> matchResponseDtos = matchOdds.map(matchOdd -> {
-            return getMatchOddsDto(matchOdd);
-        });
+        Page<MatchOddsDto> matchResponseDtos = matchOdds.map(matchOdd -> getMatchOddsDto(matchOdd));
         return matchResponseDtos;
     }
 
@@ -50,9 +48,7 @@ public class MatchOddsService {
         Page<MatchOdds> matchOdds = matchOddsRepository.findByMatchId(matchId, pageable);
 
         //Page<MatchOddsDto> matchOddsDtos = matchOdds.map(matchOddsMapper::mapTo); TODO
-        Page<MatchOddsDto> matchOddsDtos = matchOdds.map(matchOdd -> {
-            return getMatchOddsDto(matchOdd);
-        });
+        Page<MatchOddsDto> matchOddsDtos = matchOdds.map(matchOdd -> getMatchOddsDto(matchOdd));
 
         return matchOddsDtos;
     }
@@ -91,18 +87,18 @@ public class MatchOddsService {
         if (idParamVar <= 0) {
             throw new BadRequestException(String.format("%s ID as request parameter must be greater than zero.", entityName));
         }
-        if (idFromBody != idParamVar) {
+        if (!idFromBody.equals(idParamVar)) {
             throw new BadRequestException(String.format("%s ID in in the request body defers from the request parameter.", entityName));
         }
     }
 
     public MatchOddsDto updateMatchOdds(Long id, MatchOddsDto matchOddsDto) throws BadRequestException {
         if (!matchOddsRepository.existsById(id)) {
-            throw new BadRequestException(String.format("MatchOdds with id %d does not exist.", id));
+            throw new MatchOddsNotFoundException(String.format("MatchOdds with id %d does not exist.", id));
         }
 
         validateIdParamVarOverBodyField(id, matchOddsDto.getId(), "MatchOdds");
-        MatchOdds matchOdds = matchOddsMapper.mapFrom(matchOddsDto);
+        MatchOdds matchOdds = getMatchOdds(matchOddsDto);//matchOddsMapper.mapFrom(matchOddsDto);
 
         MatchOdds matchOddsUpdated = matchOddsRepository.save(matchOdds);
         //MatchOddsDto matchOddsDtoUpdated = matchOddsMapper.mapTo(matchOddsUpdated);
@@ -111,9 +107,21 @@ public class MatchOddsService {
         return matchOddsDtoUpdated;
     }
 
-    public void deleteMatch(Long id) throws BadRequestException {
+    private MatchOdds getMatchOdds(MatchOddsDto matchOddsDto) {
+        MatchOdds matchOdds = new MatchOdds();
+        matchOdds.setId(matchOddsDto.getId());
+        matchOdds.setSpecifier(matchOddsDto.getSpecifier());
+        matchOdds.setOdd(matchOddsDto.getOdd());
+
+        Match match = matchService.findById(matchOddsDto.getMatch());
+        matchOdds.setMatch(match);
+
+        return matchOdds;
+    }
+
+    public void deleteMatchOdds(Long id) {
         if (!matchOddsRepository.existsById(id)) {
-            throw new BadRequestException("MatchOdds with id " + id + " does not exist.");
+            throw new MatchNotFoundException("MatchOdds with id " + id + " does not exist.");
         }
         matchOddsRepository.deleteById(id);
     }

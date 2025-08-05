@@ -1,6 +1,7 @@
 package com.accepted.matches.services;
 
 import com.accepted.matches.enums.Specifier;
+import com.accepted.matches.exceptions.MatchNotFoundException;
 import com.accepted.matches.exceptions.MatchOddsNotFoundException;
 import com.accepted.matches.mappers.Mapper;
 import com.accepted.matches.model.dto.MatchDto;
@@ -155,24 +156,25 @@ public class MatchOddsServiceTests {
 
         Mockito.when(matchOddsMapper.mapFrom(matchOddsAChangedDto)).thenReturn(matchOddsAChanged);
         Mockito.when(matchOddsRepository.existsById(matchOddsA.getId())).thenReturn(true);
+        Mockito.when(matchService.findById(matchOddsA.getMatch().getId())).thenReturn(matchA);
         Mockito.when(matchOddsRepository.save(Mockito.any(MatchOdds.class))).thenReturn(matchOddsAChanged);
 
         MatchOddsDto matchOddsDtoUpdated = matchOddsService.updateMatchOdds(matchOddsA.getId(), matchOddsAChangedDto);
 
         assertNotNull(matchOddsDtoUpdated);
         assertEquals(matchOddsAChangedDto, matchOddsDtoUpdated);
-        Mockito.verify(matchOddsRepository, Mockito.times(1)).existsById(1L);
+        Mockito.verify(matchOddsRepository, Mockito.times(1)).existsById(matchOddsA.getId());
         Mockito.verify(matchOddsRepository, Mockito.times(1)).save(matchOddsAChanged);
     }
 
     @Test
-    public void testUpdateMatchThrowsBadRequestExceptionWhenMatchDoesNotExist() {
+    public void testUpdateMatchOddsThrowsMatchOddsNotFoundExceptionWhenMatchOddsDoesNotExist() {
         MatchDto matchADto = createMatchADto();
         MatchOddsDto matchOddsADto = createMatchOddsADto(matchADto);
 
         Mockito.when(matchOddsRepository.existsById(matchOddsADto.getId())).thenReturn(false);
 
-        assertThrows(BadRequestException.class, () -> matchOddsService.updateMatchOdds(matchOddsADto.getId(), matchOddsADto));
+        assertThrows(MatchOddsNotFoundException.class, () -> matchOddsService.updateMatchOdds(matchOddsADto.getId(), matchOddsADto));
 
         Mockito.verify(matchOddsRepository, Mockito.times(1)).existsById(matchOddsADto.getId());
     }
@@ -182,18 +184,18 @@ public class MatchOddsServiceTests {
         long matchId = 1L;
         Mockito.when(matchOddsRepository.existsById(matchId)).thenReturn(true);
 
-        matchOddsService.deleteMatch(matchId);
+        matchOddsService.deleteMatchOdds(matchId);
 
         Mockito.verify(matchOddsRepository, Mockito.times(1)).existsById(matchId);
         Mockito.verify(matchOddsRepository, Mockito.times(1)).deleteById(matchId);
     }
 
     @Test
-    public void testDeleteMatchThrowsBadRequestExceptionWhenMatchDoesNotExist() {
+    public void testDeleteMatchThrowsMatchNotFoundExceptionWhenMatchDoesNotExist() {
         long matchOddId = 1L;
         Mockito.when(matchOddsRepository.existsById(matchOddId)).thenReturn(false);
 
-        assertThrows(BadRequestException.class, () -> matchOddsService.deleteMatch(matchOddId));
+        assertThrows(MatchNotFoundException.class, () -> matchOddsService.deleteMatchOdds(matchOddId));
 
         Mockito.verify(matchOddsRepository, Mockito.times(1)).existsById(matchOddId);
     }

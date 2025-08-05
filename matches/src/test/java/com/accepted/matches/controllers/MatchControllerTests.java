@@ -45,7 +45,7 @@ public class MatchControllerTests {
         Match matchA = CreateTestData.createMatchA();
         MatchDto matchADto = CreateTestData.createMatchADto();
 
-        Mockito.when(matchService.findById(1L)).thenReturn(matchA);
+        Mockito.when(matchService.findById(matchA.getId())).thenReturn(matchA);
         Mockito.when(matchMapper.mapTo(matchA)).thenReturn(matchADto);
 
         mockMvc.perform(MockMvcRequestBuilders.get(urlMatches + "/1")
@@ -124,7 +124,7 @@ public class MatchControllerTests {
         MatchDto matchADto = CreateTestData.createMatchADto();
         Match matchA = CreateTestData.createMatchA();
 
-        Mockito.when(matchService.updateMatch(1L, matchA)).thenReturn(matchA);
+        Mockito.when(matchService.updateMatch(matchA.getId(), matchA)).thenReturn(matchA);
         Mockito.when(matchMapper.mapFrom(matchADto)).thenReturn(matchA);
         Mockito.when(matchMapper.mapTo(matchA)).thenReturn(matchADto);
 
@@ -137,11 +137,43 @@ public class MatchControllerTests {
     }
 
     @Test
+    public void testUpdateMatchReturnsMatchNotFoundExceptionWhenMatchDoesNotExist() throws Exception {
+        MatchDto matchADto = CreateTestData.createMatchADto();
+        Match matchA = CreateTestData.createMatchA();
+
+        Mockito.when(matchMapper.mapFrom(matchADto)).thenReturn(matchA);
+        Mockito.when(matchService.updateMatch(matchA.getId(), matchA))
+                .thenThrow(new MatchNotFoundException(String.format("Match with %d does not exist.", matchA.getId())));
+
+        String requestAsJsonString = objectMapper.writeValueAsString(matchADto);
+        mockMvc.perform(MockMvcRequestBuilders.put(urlMatches + "/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestAsJsonString))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
     public void testDeleteMatchReturnsNoContent() throws Exception {
-        Mockito.doNothing().when(matchService).deleteMatch(1L);
+        long matchId = 1L;
+        Mockito.doNothing().when(matchService).deleteMatch(matchId);
 
         mockMvc.perform(MockMvcRequestBuilders.delete(urlMatches + "/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
+
+        Mockito.verify(matchService, Mockito.times(1)).deleteMatch(matchId);
+    }
+
+    @Test
+    public void testDeleteMatchThrowsMatchNotFoundException() throws Exception {
+        long matchId = 1L;
+        Mockito.doThrow(new MatchNotFoundException(String.format("Match with %d does not exist.", matchId)))
+                .when(matchService).deleteMatch(matchId);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(urlMatches + "/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+
+        Mockito.verify(matchService, Mockito.times(1)).deleteMatch(matchId);
     }
 }

@@ -52,7 +52,7 @@ public class MatchController {
     @PutMapping(path = "/matches/{id}")
     public ResponseEntity<MatchDto> updateMatch(
             @PathVariable("id") Long id,
-            @RequestBody MatchDto matchRequestDto) throws BadRequestException {
+            @RequestBody MatchDto matchRequestDto) {
 
         Match match = matchMapper.mapFrom(matchRequestDto);
         Match matchUpdated = matchService.updateMatch(id, match);
@@ -61,7 +61,7 @@ public class MatchController {
     }
 
     @DeleteMapping(path = "/matches/{id}")
-    public ResponseEntity<Void> deleteMatch(@PathVariable("id") Long id) throws BadRequestException {
+    public ResponseEntity<Void> deleteMatch(@PathVariable("id") Long id) {
         matchService.deleteMatch(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
