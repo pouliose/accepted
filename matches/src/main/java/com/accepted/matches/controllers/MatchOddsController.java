@@ -1,8 +1,6 @@
 package com.accepted.matches.controllers;
 
-import com.accepted.matches.mappers.Mapper;
 import com.accepted.matches.model.dto.MatchOddsDto;
-import com.accepted.matches.model.entities.MatchOdds;
 import com.accepted.matches.services.MatchOddsService;
 import lombok.AllArgsConstructor;
 import org.apache.coyote.BadRequestException;

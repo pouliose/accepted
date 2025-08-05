@@ -85,7 +85,7 @@ public class MatchServiceTests {
     }
 
     @Test
-    public void testUpdateMatchUpdatesAndReturnsMatch() throws BadRequestException {
+    public void testUpdateMatchUpdatesAndReturnsMatch() {
         Match matchA = CreateTestData.createMatchA();
 
         Mockito.when(matchRepository.existsById(1L)).thenReturn(true);
@@ -111,7 +111,7 @@ public class MatchServiceTests {
     }
 
     @Test
-    public void testDeleteMatchDeletesMatchWhenExists() throws BadRequestException {
+    public void testDeleteMatchDeletesMatchWhenExists() {
         Mockito.when(matchRepository.existsById(1L)).thenReturn(true);
 
         matchService.deleteMatch(1L);

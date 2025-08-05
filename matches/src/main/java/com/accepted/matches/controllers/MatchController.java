@@ -5,7 +5,6 @@ import com.accepted.matches.model.dto.MatchDto;
 import com.accepted.matches.model.entities.Match;
 import com.accepted.matches.services.MatchService;
 import lombok.AllArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

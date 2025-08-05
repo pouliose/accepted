@@ -3,7 +3,6 @@ package com.accepted.matches.services;
 import com.accepted.matches.exceptions.MatchNotFoundException;
 import com.accepted.matches.model.entities.Match;
 import com.accepted.matches.repositories.MatchRepository;
-import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

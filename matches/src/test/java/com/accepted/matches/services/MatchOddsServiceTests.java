@@ -180,7 +180,7 @@ public class MatchOddsServiceTests {
     }
 
     @Test
-    public void testDeleteMatchDeletesMatchWhenExists() throws BadRequestException {
+    public void testDeleteMatchDeletesMatchWhenExists() {
         long matchId = 1L;
         Mockito.when(matchOddsRepository.existsById(matchId)).thenReturn(true);
 
