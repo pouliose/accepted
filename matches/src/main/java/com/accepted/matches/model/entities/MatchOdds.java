@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 @Setter
 @Builder
 @EqualsAndHashCode
+@ToString
 @Entity
 @Table(name="matchOdds")
 public class MatchOdds {

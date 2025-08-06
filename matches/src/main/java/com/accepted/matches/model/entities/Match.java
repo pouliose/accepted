@@ -14,6 +14,7 @@ import java.util.Set;
 @Setter
 @Builder
 @EqualsAndHashCode
+@ToString
 @Entity
 @Table(name = "matches")
 public class Match {

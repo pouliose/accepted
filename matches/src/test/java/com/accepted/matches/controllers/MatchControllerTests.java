@@ -45,7 +45,7 @@ public class MatchControllerTests {
         Match matchA = CreateTestData.createMatchA();
         MatchDto matchADto = CreateTestData.createMatchADto();
 
-        Mockito.when(matchService.findById(matchA.getId())).thenReturn(matchA);
+        Mockito.when(matchService.findById(matchA.getId())).thenReturn(matchADto);
         Mockito.when(matchMapper.mapTo(matchA)).thenReturn(matchADto);
 
         mockMvc.perform(MockMvcRequestBuilders.get(urlMatches + "/1")
@@ -56,7 +56,7 @@ public class MatchControllerTests {
 
     @Test
     public void testGetMatchByIdReturnsHttpStatusNotFound() throws Exception {
-        Mockito.when(matchService.findById(anyLong())).thenThrow( new MatchNotFoundException(String.format("Match with %d does not exist.", 1)));
+        Mockito.when(matchService.findById(anyLong())).thenThrow(new MatchNotFoundException(String.format("Match with %d does not exist.", 1)));
 
         mockMvc.perform(MockMvcRequestBuilders.get(urlMatches + "/1")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -79,11 +79,11 @@ public class MatchControllerTests {
         Match matchA = CreateTestData.createMatchA();
         MatchDto matchADto = CreateTestData.createMatchADto();
 
-        List<Match> matches = new ArrayList<>();
-        matches.add(matchA);
+        List<MatchDto> matchesDto = new ArrayList<>();
+        matchesDto.add(matchADto);
 
         Mockito.when(matchService.findAll(Mockito.any())).thenReturn(
-                new org.springframework.data.domain.PageImpl<>(matches));
+                new org.springframework.data.domain.PageImpl<>(matchesDto));
 
         Mockito.when(matchMapper.mapTo(matchA)).thenReturn(matchADto);
 
@@ -100,14 +100,11 @@ public class MatchControllerTests {
     }
 
     @Test
-    public void testCreateMatchReturnsCreatedMatch() throws Exception { // TODO Check test
+    public void testCreateMatchReturnsCreatedMatch() throws Exception {
         MatchDto matchADto = CreateTestData.createMatchADto();
         Match matchA = CreateTestData.createMatchA();
 
-        Mockito.when(matchService.createMatch(matchA)).thenReturn(matchA);
-
-        /*Mockito.when(matchMapper.mapFrom(matchADto)).thenReturn(matchA);
-        Mockito.when(matchMapper.mapTo(matchA)).thenReturn(matchADto);*/
+        Mockito.when(matchService.createMatch(matchADto)).thenReturn(matchADto);
 
         String requestAsJsonString = objectMapper.writeValueAsString(matchADto);
         mockMvc.perform(MockMvcRequestBuilders.post(urlMatches)
@@ -120,11 +117,11 @@ public class MatchControllerTests {
     }
 
     @Test
-    public void testUpdateMatchReturnsUpdatedMatch() throws Exception {// TODO Check test
+    public void testUpdateMatchReturnsUpdatedMatch() throws Exception {
         MatchDto matchADto = CreateTestData.createMatchADto();
         Match matchA = CreateTestData.createMatchA();
 
-        Mockito.when(matchService.updateMatch(matchA.getId(), matchA)).thenReturn(matchA);
+        Mockito.when(matchService.updateMatch(matchA.getId(), matchADto)).thenReturn(matchADto);
         Mockito.when(matchMapper.mapFrom(matchADto)).thenReturn(matchA);
         Mockito.when(matchMapper.mapTo(matchA)).thenReturn(matchADto);
 
@@ -142,7 +139,7 @@ public class MatchControllerTests {
         Match matchA = CreateTestData.createMatchA();
 
         Mockito.when(matchMapper.mapFrom(matchADto)).thenReturn(matchA);
-        Mockito.when(matchService.updateMatch(matchA.getId(), matchA))
+        Mockito.when(matchService.updateMatch(matchA.getId(), matchADto))
                 .thenThrow(new MatchNotFoundException(String.format("Match with %d does not exist.", matchA.getId())));
 
         String requestAsJsonString = objectMapper.writeValueAsString(matchADto);

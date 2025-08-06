@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Objects;
 
 @Builder
 @AllArgsConstructor
@@ -12,6 +13,7 @@ import java.time.LocalTime;
 @Getter
 @Setter
 @EqualsAndHashCode
+@ToString
 public class MatchDto {
     private Long id;
     private String description;

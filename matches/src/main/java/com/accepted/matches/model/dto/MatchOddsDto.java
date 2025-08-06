@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @EqualsAndHashCode
+@ToString
 public class MatchOddsDto {
     private Long id;
     private Specifier specifier;

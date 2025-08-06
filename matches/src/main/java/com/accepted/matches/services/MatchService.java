@@ -1,6 +1,8 @@
 package com.accepted.matches.services;
 
 import com.accepted.matches.exceptions.MatchNotFoundException;
+import com.accepted.matches.mappers.Mapper;
+import com.accepted.matches.model.dto.MatchDto;
 import com.accepted.matches.model.entities.Match;
 import com.accepted.matches.repositories.MatchRepository;
 import org.springframework.data.domain.Page;
@@ -13,34 +15,46 @@ import java.util.Optional;
 public class MatchService {
 
     private final MatchRepository matchRepository;
+    private final Mapper<Match, MatchDto> matchMapper;
 
-    public MatchService(MatchRepository matchRepository) {
+    public MatchService(MatchRepository matchRepository, Mapper<Match, MatchDto> matchMapper) {
         this.matchRepository = matchRepository;
+        this.matchMapper = matchMapper;
     }
 
-    public Match findById(Long id) {
+    public MatchDto findById(Long id) {
 
         Optional<Match> match = matchRepository.findById(id);
         if(match.isEmpty()) {
             throw new MatchNotFoundException(String.format("Match with %d does not exist.", id));
         }
-        return match.get();
+        return matchMapper.mapTo(match.get());
     }
 
-    public Page<Match> findAll(Pageable pageable) {
-        return matchRepository.findAll(pageable);
+    public Page<MatchDto> findAll(Pageable pageable) {
+        Page<Match> matches = matchRepository.findAll(pageable);
+        Page<MatchDto> matchResponseDtos = matches.map(matchMapper::mapTo);
+        return matchResponseDtos;
     }
 
-    public Match createMatch(Match match) {
-        return matchRepository.save(match);
+    public MatchDto createMatch(MatchDto matchDto) {
+        Match match = matchMapper.mapFrom(matchDto);
+        Match matchSaved = matchRepository.save(match);
+        MatchDto matchDtoSaved = matchMapper.mapTo(matchSaved);
+
+        return matchDtoSaved;
     }
 
-    public Match updateMatch(Long id, Match match) {
+    public MatchDto updateMatch(Long id, MatchDto matchDto) {
         if (!matchRepository.existsById(id)) {
             throw new MatchNotFoundException("Match with id " + id + " does not exist.");
         }
+        Match match = matchMapper.mapFrom(matchDto);
+
         match.setId(id);
-        return matchRepository.save(match);
+        Match matchUpdated = matchRepository.save(match);
+        MatchDto matchDtoUpdated = matchMapper.mapTo(matchUpdated);
+        return matchDtoUpdated;
     }
 
     public void deleteMatch(Long id) {

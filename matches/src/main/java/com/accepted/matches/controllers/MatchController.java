@@ -21,41 +21,34 @@ public class MatchController {
     private final MatchService matchService;
 
     private final Mapper<Match, MatchDto> matchMapper;
-    //private final ModelMapper modelMapper;
-
 
     @GetMapping(path = "/matches/{id}")
     public ResponseEntity<MatchDto> getMatchById(@PathVariable("id") Long id) {
-        Match matchResult = matchService.findById(id);
+        MatchDto matchResult = matchService.findById(id);
 
-        return new ResponseEntity<>(matchMapper.mapTo(matchResult), HttpStatus.OK);
+        return new ResponseEntity<>(matchResult, HttpStatus.OK);
     }
 
     @GetMapping(path = "/matches")
     public ResponseEntity<Page<MatchDto>> getAllMatches(
             @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC)
             Pageable pageable) {
-        Page<Match> matches = matchService.findAll(pageable);
-        Page<MatchDto> matchResponseDtos = matches.map(matchMapper::mapTo);
-        return new ResponseEntity<>(matchResponseDtos, HttpStatus.OK);
+        Page<MatchDto> matches = matchService.findAll(pageable);
+
+        return new ResponseEntity<>(matches, HttpStatus.OK);
     }
 
     @PostMapping(path = "/matches")
     public ResponseEntity<MatchDto> createMatch(@RequestBody MatchDto matchRequestDto) {
-        Match match = matchMapper.mapFrom(matchRequestDto);
-        Match matchSaved = matchService.createMatch(match);
-        MatchDto matchDtoSaved = matchMapper.mapTo(matchSaved);
-        return new ResponseEntity<>(matchDtoSaved, HttpStatus.CREATED);
+        MatchDto matchSaved = matchService.createMatch(matchRequestDto);
+        return new ResponseEntity<>(matchSaved, HttpStatus.CREATED);
     }
 
     @PutMapping(path = "/matches/{id}")
     public ResponseEntity<MatchDto> updateMatch(
             @PathVariable("id") Long id,
-            @RequestBody MatchDto matchRequestDto) {
-
-        Match match = matchMapper.mapFrom(matchRequestDto);
-        Match matchUpdated = matchService.updateMatch(id, match);
-        MatchDto matchDtoUpdated = matchMapper.mapTo(matchUpdated);
+            @RequestBody MatchDto matchDto) {
+        MatchDto matchDtoUpdated = matchService.updateMatch(id, matchDto);
         return new ResponseEntity<>(matchDtoUpdated, HttpStatus.OK);
     }
 

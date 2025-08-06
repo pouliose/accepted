@@ -13,6 +13,8 @@ This project is a Spring Boot application that manages matches and their odds. I
 - **PostgreSQL**: Database for storing match and odds data.
 - **Docker**: Containerization platform for running the application and database.
 - **Lombok**: Reduces boilerplate code for Java classes.
+- **Springdoc OpenAPI Starter WebMVC UI**: For generating OpenAPI documentation and providing a Swagger UI.
+
 
 ## Prerequisites
 - Docker and Docker Compose installed on your system.
@@ -40,6 +42,7 @@ This project is a Spring Boot application that manages matches and their odds. I
 
 4. **Access the Application**:
     - The application will be available at `http://localhost:8080`.
+    - The Swagger UI for API documentation can be accessed at `http://localhost:8080/swagger-ui/index.html`. Raw OpenAPI JSON: Available at http://localhost:8080/v3/api-docs
 
 5. **Stop the Application**:
     - To stop the containers, run:
@@ -79,8 +82,29 @@ These values can be modified in the `docker-compose.yml` file.
   ```bash
   docker logs springboot-app
   docker logs postgres-db
+    ```
+## Additional Resources
+
+### Images and Documentation
+The following resources are available in the project:
+
+1. **Docker Containers**:  
+   ![Docker Containers](./src/main/resources/ReadmeFiles/docker.png)
+
+2. **Swagger UI**:  
+   ![Swagger UI](src/main/resources/ReadmeFiles/swagger.png)
+   ![Schemas](src/main/resources/ReadmeFiles/Schemas.png)
+
+3. **Test Results**:  
+   ![Test Results](src/main/resources/ReadmeFiles/testResult.png)
+4. Postman collection
 
 ## Assumptions
 - In entity MatchOdds the field `specifier` is an enum that can take values "1", "X", or "2".
 - The id fields in the two entities are not updatable through the API.
 
+## Improvements
+- Add more validation steps for incoming requests eg. matchDate and matchTime should not be in the past. The matchOdds specifier should be one of the allowed values and do not allow double specifier per match.
+- Create DTOs (Data Transfer Objects) for Match and MatchOdds per Http verb, different for CreateMatchRequest, UpdateMatchRequest.
+- Add more API endpoints eg to get all matches for a specific sport.
+- Add more tests about more complicated scenarios, better null checks.

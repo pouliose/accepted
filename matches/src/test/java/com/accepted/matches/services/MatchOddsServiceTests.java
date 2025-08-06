@@ -9,6 +9,7 @@ import com.accepted.matches.model.dto.MatchOddsDto;
 import com.accepted.matches.model.entities.Match;
 import com.accepted.matches.model.entities.MatchOdds;
 import com.accepted.matches.repositories.MatchOddsRepository;
+import com.accepted.matches.repositories.MatchRepository;
 import com.accepted.matches.utils.CreateTestData;
 import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.Test;
@@ -32,20 +33,24 @@ public class MatchOddsServiceTests {
     @MockitoBean
     private final MatchOddsRepository matchOddsRepository;
     @MockitoBean
+    private final MatchRepository matchRepository;
+    @MockitoBean
     private final MatchService matchService;
     private final MatchOddsService matchOddsService;
 
     @MockitoBean
     private final Mapper<MatchOdds, MatchOddsDto> matchOddsMapper;
+    @MockitoBean
+    private final Mapper<Match, MatchDto> matchMapper;
 
-    /* @MockitoBean
-    private final Mapper<Match, MatchDto> matchMapper;*/
     @Autowired
-    public MatchOddsServiceTests(MatchOddsRepository matchOddsRepository, MatchService matchService, MatchOddsService matchOddsService, Mapper<MatchOdds, MatchOddsDto> matchOddsMapper) {
+    public MatchOddsServiceTests(MatchOddsRepository matchOddsRepository, MatchRepository matchRepository, MatchService matchService, MatchOddsService matchOddsService, Mapper<MatchOdds, MatchOddsDto> matchOddsMapper, Mapper<Match, MatchDto> matchMapper) {
         this.matchOddsRepository = matchOddsRepository;
+        this.matchRepository = matchRepository;
         this.matchService = matchService;
         this.matchOddsService = matchOddsService;
         this.matchOddsMapper = matchOddsMapper;
+        this.matchMapper = matchMapper;
     }
 
     @Test
@@ -150,14 +155,15 @@ public class MatchOddsServiceTests {
         matchOddsAChanged.setSpecifier(Specifier.TWO);
 
         MatchOddsDto matchOddsADto = createMatchOddsADto(matchADto);
-        MatchOddsDto matchOddsAChangedDto =  matchOddsADto;
+        MatchOddsDto matchOddsAChangedDto = matchOddsADto;
         matchOddsAChangedDto.setOdd(matchOddsADto.getOdd().add(new java.math.BigDecimal("7.00")));
         matchOddsAChangedDto.setSpecifier(Specifier.TWO);
 
         Mockito.when(matchOddsMapper.mapFrom(matchOddsAChangedDto)).thenReturn(matchOddsAChanged);
         Mockito.when(matchOddsRepository.existsById(matchOddsA.getId())).thenReturn(true);
-        Mockito.when(matchService.findById(matchOddsA.getMatch().getId())).thenReturn(matchA);
+        Mockito.when(matchService.findById(matchOddsA.getMatch().getId())).thenReturn(matchADto);
         Mockito.when(matchOddsRepository.save(Mockito.any(MatchOdds.class))).thenReturn(matchOddsAChanged);
+        Mockito.when(matchRepository.findById(matchOddsA.getMatch().getId())).thenReturn(Optional.of(matchA));
 
         MatchOddsDto matchOddsDtoUpdated = matchOddsService.updateMatchOdds(matchOddsA.getId(), matchOddsAChangedDto);
 
@@ -180,7 +186,7 @@ public class MatchOddsServiceTests {
     }
 
     @Test
-    public void testDeleteMatchDeletesMatchWhenExists() {
+    public void testDeleteMatchOddsDeletesMatchOddsWhenExists() {
         long matchId = 1L;
         Mockito.when(matchOddsRepository.existsById(matchId)).thenReturn(true);
 
@@ -191,11 +197,11 @@ public class MatchOddsServiceTests {
     }
 
     @Test
-    public void testDeleteMatchThrowsMatchNotFoundExceptionWhenMatchDoesNotExist() {
+    public void testDeleteMatchThrowsMatchOddsNotFoundExceptionWhenMatchOddsDoesNotExist() {
         long matchOddId = 1L;
         Mockito.when(matchOddsRepository.existsById(matchOddId)).thenReturn(false);
 
-        assertThrows(MatchNotFoundException.class, () -> matchOddsService.deleteMatchOdds(matchOddId));
+        assertThrows(MatchOddsNotFoundException.class, () -> matchOddsService.deleteMatchOdds(matchOddId));
 
         Mockito.verify(matchOddsRepository, Mockito.times(1)).existsById(matchOddId);
     }

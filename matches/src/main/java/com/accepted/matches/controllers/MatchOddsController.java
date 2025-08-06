@@ -32,8 +32,6 @@ public class MatchOddsController {
             Pageable pageable) {
         Page<MatchOddsDto> matchOddsDto = matchOddsService.findAll(pageable);
 
-
-        // Page<MatchOddsDto> matchResponseDtos = matches.map(matchOddsMapper::mapTo); TODO Converter org.modelmapper failed to convert Match to Long.
         return new ResponseEntity<>(matchOddsDto, HttpStatus.OK);
     }
 

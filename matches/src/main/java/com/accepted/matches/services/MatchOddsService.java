@@ -1,12 +1,13 @@
 package com.accepted.matches.services;
 
-import com.accepted.matches.exceptions.MatchNotFoundException;
 import com.accepted.matches.exceptions.MatchOddsNotFoundException;
 import com.accepted.matches.mappers.Mapper;
+import com.accepted.matches.model.dto.MatchDto;
 import com.accepted.matches.model.dto.MatchOddsDto;
 import com.accepted.matches.model.entities.Match;
 import com.accepted.matches.model.entities.MatchOdds;
 import com.accepted.matches.repositories.MatchOddsRepository;
+import com.accepted.matches.repositories.MatchRepository;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,13 +19,17 @@ import java.util.Optional;
 public class MatchOddsService {
 
     private final MatchOddsRepository matchOddsRepository;
+    private final MatchRepository matchRepository;
     private final MatchService matchService;
     private final Mapper<MatchOdds, MatchOddsDto> matchOddsMapper;
+    private final Mapper<Match, MatchDto> matchMapper;
 
-    public MatchOddsService(MatchOddsRepository matchOddsRepository, MatchService matchService, Mapper<MatchOdds, MatchOddsDto> matchOddsMapper) {
+    public MatchOddsService(MatchOddsRepository matchOddsRepository, MatchRepository matchRepository, MatchService matchService, Mapper<MatchOdds, MatchOddsDto> matchOddsMapper, Mapper<Match, MatchDto> matchMapper) {
         this.matchOddsRepository = matchOddsRepository;
+        this.matchRepository = matchRepository;
         this.matchService = matchService;
         this.matchOddsMapper = matchOddsMapper;
+        this.matchMapper = matchMapper;
     }
 
     public MatchOddsDto findByMatchOddsId(Long id) {
@@ -47,7 +52,6 @@ public class MatchOddsService {
     public Page<MatchOddsDto> findMatchOddsByMatchId(Long matchId, Pageable pageable) {
         Page<MatchOdds> matchOdds = matchOddsRepository.findByMatchId(matchId, pageable);
 
-        //Page<MatchOddsDto> matchOddsDtos = matchOdds.map(matchOddsMapper::mapTo); TODO
         Page<MatchOddsDto> matchOddsDtos = matchOdds.map(MatchOddsService::getMatchOddsDto);
 
         return matchOddsDtos;
@@ -67,13 +71,15 @@ public class MatchOddsService {
 
         validateIdParamVarOverBodyField(matchIdParamVar, matchId, "Match");
 
-        Match match = matchService.findById(matchId);
+        MatchDto matchDto = matchService.findById(matchId);
         MatchOdds matchOdds = matchOddsMapper.mapFrom(matchOddsRequestDto);
+
+        Match match = matchMapper.mapFrom(matchDto);
+
         matchOdds.setMatch(match);
 
         MatchOdds matchOddsSaved = matchOddsRepository.save(matchOdds);
 
-        // Prepare the response DTO
         MatchOddsDto matchOddsResponseDto = matchOddsRequestDto;
         matchOddsResponseDto.setId(matchOddsSaved.getId());
 
@@ -88,7 +94,7 @@ public class MatchOddsService {
             throw new BadRequestException(String.format("%s ID as request parameter must be greater than zero.", entityName));
         }
         if (!idFromBody.equals(idParamVar)) {
-            throw new BadRequestException(String.format("%s ID in in the request body defers from the request parameter.", entityName));
+            throw new BadRequestException(String.format("%s ID in in the request body defers from the path variable.", entityName));
         }
     }
 
@@ -98,10 +104,9 @@ public class MatchOddsService {
         }
 
         validateIdParamVarOverBodyField(id, matchOddsDto.getId(), "MatchOdds");
-        MatchOdds matchOdds = getMatchOdds(matchOddsDto);//matchOddsMapper.mapFrom(matchOddsDto);
+        MatchOdds matchOdds = getMatchOdds(matchOddsDto);
 
         MatchOdds matchOddsUpdated = matchOddsRepository.save(matchOdds);
-        //MatchOddsDto matchOddsDtoUpdated = matchOddsMapper.mapTo(matchOddsUpdated);
         MatchOddsDto matchOddsDtoUpdated = getMatchOddsDto(matchOddsUpdated);
 
         return matchOddsDtoUpdated;
@@ -113,15 +118,16 @@ public class MatchOddsService {
         matchOdds.setSpecifier(matchOddsDto.getSpecifier());
         matchOdds.setOdd(matchOddsDto.getOdd());
 
-        Match match = matchService.findById(matchOddsDto.getMatch());
-        matchOdds.setMatch(match);
+        Optional<Match> match = matchRepository.findById(matchOddsDto.getMatch());
+
+        matchOdds.setMatch(match.get());
 
         return matchOdds;
     }
 
     public void deleteMatchOdds(Long id) {
         if (!matchOddsRepository.existsById(id)) {
-            throw new MatchNotFoundException("MatchOdds with id " + id + " does not exist.");
+            throw new MatchOddsNotFoundException("MatchOdds with id " + id + " does not exist.");
         }
         matchOddsRepository.deleteById(id);
     }

@@ -1,10 +1,11 @@
 package com.accepted.matches.services;
 
 import com.accepted.matches.exceptions.MatchNotFoundException;
+import com.accepted.matches.mappers.Mapper;
+import com.accepted.matches.model.dto.MatchDto;
 import com.accepted.matches.model.entities.Match;
 import com.accepted.matches.repositories.MatchRepository;
 import com.accepted.matches.utils.CreateTestData;
-import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,23 +27,28 @@ public class MatchServiceTests {
     private final MatchRepository matchRepository;
 
     private final MatchService matchService;
+    @MockitoBean
+    private final Mapper<Match, MatchDto> matchMapper;
 
     @Autowired
-    public MatchServiceTests(MatchRepository matchRepository, MatchService matchService) {
+    public MatchServiceTests(MatchRepository matchRepository, MatchService matchService, Mapper<Match, MatchDto> matchMapper) {
         this.matchRepository = matchRepository;
         this.matchService = matchService;
+        this.matchMapper = matchMapper;
     }
 
     @Test
     public void testFindMatchByIdReturnsMatchWhenExists() {
         Match matchA = CreateTestData.createMatchA();
+        MatchDto matchADto = CreateTestData.createMatchADto();
 
         Mockito.when(matchRepository.findById(1L)).thenReturn(Optional.of(matchA));
+        Mockito.when(matchMapper.mapTo(matchA)).thenReturn(matchADto);
 
-        Match result = matchService.findById(1L);
+        MatchDto result = matchService.findById(1L);
 
         assertNotNull(result);
-        assertEquals(matchA, result);
+        assertEquals(matchADto, result);
         Mockito.verify(matchRepository, Mockito.times(1)).findById(1L);
     }
 
@@ -56,45 +62,56 @@ public class MatchServiceTests {
     @Test
     public void testFindAllMatchesReturnsPageableResults() {
         Match matchA = CreateTestData.createMatchA();
+        MatchDto matchADto = CreateTestData.createMatchADto();
 
         Pageable pageable = PageRequest.of(0, 10);
 
         List<Match> matches = List.of(matchA);
+        List<MatchDto> matchesDto = List.of(matchADto);
         Page<Match> matchPage = new org.springframework.data.domain.PageImpl<>(matches);
 
-        Mockito.when(matchRepository.findAll(pageable)).thenReturn(matchPage);
 
-        Page<Match> result = matchService.findAll(pageable);
+        Mockito.when(matchRepository.findAll(pageable)).thenReturn(matchPage);
+        Mockito.when(matchMapper.mapTo(matchA)).thenReturn(matchADto);
+
+        Page<MatchDto> result = matchService.findAll(pageable);
 
         assertEquals(1, result.getSize());
-        assertEquals(matchA, result.stream().findFirst().get());
+        System.out.println("Expected: " + matchADto);
+        System.out.println("Actual value: " + result.stream().findFirst().get().getDescription() + " " + result.stream().findFirst().get().getId() + " " + result.stream().findFirst().get().getMatchDate() + " " + result.stream().findFirst().get().getMatchTime() + " " + result.stream().findFirst().get().getSport());
+        assertTrue(matchADto.equals(result.stream().findFirst().get()));
         Mockito.verify(matchRepository, Mockito.times(1)).findAll(pageable);
     }
 
     @Test
     public void testCreateMatchSavesAndReturnsMatch() {
         Match matchA = CreateTestData.createMatchA();
+        MatchDto matchADto = CreateTestData.createMatchADto();
 
         Mockito.when(matchRepository.save(matchA)).thenReturn(matchA);
+        Mockito.when(matchMapper.mapFrom(matchADto)).thenReturn(matchA);
+        Mockito.when(matchMapper.mapTo(matchA)).thenReturn(matchADto);
 
-        Match matchSaved = matchService.createMatch(matchA);
-
-        assertNotNull(matchSaved);
-        assertEquals(matchA, matchSaved);
+        MatchDto matchDtoSaved = matchService.createMatch(matchADto);
+        assertNotNull(matchDtoSaved);
+        assertEquals(matchADto, matchDtoSaved);
         Mockito.verify(matchRepository, Mockito.times(1)).save(matchA);
     }
 
     @Test
     public void testUpdateMatchUpdatesAndReturnsMatch() {
         Match matchA = CreateTestData.createMatchA();
+        MatchDto matchADto = CreateTestData.createMatchADto();
 
         Mockito.when(matchRepository.existsById(1L)).thenReturn(true);
         Mockito.when(matchRepository.save(matchA)).thenReturn(matchA);
+        Mockito.when(matchMapper.mapFrom(matchADto)).thenReturn(matchA);
+        Mockito.when(matchMapper.mapTo(matchA)).thenReturn(matchADto);
 
-        Match matchUpdated = matchService.updateMatch(1L, matchA);
+        MatchDto matchDtoUpdated = matchService.updateMatch(1L, matchADto);
 
-        assertNotNull(matchUpdated);
-        assertEquals(matchA, matchUpdated);
+        assertNotNull(matchDtoUpdated);
+        assertEquals(matchADto, matchDtoUpdated);
         Mockito.verify(matchRepository, Mockito.times(1)).existsById(1L);
         Mockito.verify(matchRepository, Mockito.times(1)).save(matchA);
     }
@@ -102,10 +119,11 @@ public class MatchServiceTests {
     @Test
     public void testUpdateMatchThrowsMatchNotFoundExceptionWhenMatchDoesNotExist() {
         Match matchA = CreateTestData.createMatchA();
+        MatchDto matchADto = CreateTestData.createMatchADto();
 
         Mockito.when(matchRepository.existsById(matchA.getId())).thenReturn(false);
 
-        assertThrows(MatchNotFoundException.class, () -> matchService.updateMatch(matchA.getId(), matchA));
+        assertThrows(MatchNotFoundException.class, () -> matchService.updateMatch(matchA.getId(), matchADto));
 
         Mockito.verify(matchRepository, Mockito.times(1)).existsById(matchA.getId());
     }
@@ -121,7 +139,7 @@ public class MatchServiceTests {
     }
 
     @Test
-    public void testDeleteMatchThrowsBadRequestExceptionWhenMatchDoesNotExist() {
+    public void testDeleteMatchThrowsMatchNotFoundExceptionWhenMatchDoesNotExist() {
         long matchId = 1L;
         Mockito.when(matchRepository.existsById(matchId)).thenReturn(false);
 

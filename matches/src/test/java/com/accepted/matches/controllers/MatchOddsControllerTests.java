@@ -128,7 +128,7 @@ public class MatchOddsControllerTests {
                 .thenReturn(matchOddsADto);
 
         String requestAsJsonString = objectMapper.writeValueAsString(matchOddsADto);
-        mockMvc.perform(MockMvcRequestBuilders.post(urlMatches+ "/1/" + "odds")
+        mockMvc.perform(MockMvcRequestBuilders.post(urlMatches + "/1/" + "odds")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestAsJsonString))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
