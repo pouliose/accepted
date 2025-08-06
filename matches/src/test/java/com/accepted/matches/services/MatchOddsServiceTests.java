@@ -1,7 +1,6 @@
 package com.accepted.matches.services;
 
 import com.accepted.matches.enums.Specifier;
-import com.accepted.matches.exceptions.MatchNotFoundException;
 import com.accepted.matches.exceptions.MatchOddsNotFoundException;
 import com.accepted.matches.mappers.Mapper;
 import com.accepted.matches.model.dto.MatchDto;

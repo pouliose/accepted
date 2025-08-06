@@ -45,7 +45,7 @@ public class MatchOddsService {
     public Page<MatchOddsDto> findAll(Pageable pageable) {
         Page<MatchOdds> matchOdds = matchOddsRepository.findAll(pageable);
 
-        Page<MatchOddsDto> matchResponseDtos = matchOdds.map(matchOdd -> getMatchOddsDto(matchOdd));
+        Page<MatchOddsDto> matchResponseDtos = matchOdds.map(MatchOddsService::getMatchOddsDto);
         return matchResponseDtos;
     }
 
